@@ -1,83 +1,60 @@
 'use client'
 
-import { Component, ReactNode, Suspense, useRef, useMemo, useEffect, useState } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Float, Environment } from '@react-three/drei'
-import * as THREE from 'three'
+import { useEffect, useRef, useState } from 'react'
 
-// ─── Manual rounded rect (ctx.roundRect not available in all browsers) ───────
-function drawRoundedRect(
-  ctx: CanvasRenderingContext2D,
-  x: number, y: number, w: number, h: number, r: number
-) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.lineTo(x + w - r, y)
-  ctx.arcTo(x + w, y, x + w, y + r, r)
-  ctx.lineTo(x + w, y + h - r)
-  ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
-  ctx.lineTo(x + r, y + h)
-  ctx.arcTo(x, y + h, x, y + h - r, r)
-  ctx.lineTo(x, y + r)
-  ctx.arcTo(x, y, x + r, y, r)
-  ctx.closePath()
-}
-
-const flavorData = [
+const flavors = [
   {
     name: 'Korean BBQ',
-    shortName: ['KOREAN', 'BBQ'],
+    lines: ['KOREAN', 'BBQ'],
     primary: '#CC0000',
     secondary: '#8B0000',
-    logo: '#FFD700',
-    proteinColor: '#FFD700',
-    emissive: '#330000',
-    stripe: '#FFD700',
+    accent: '#FFD700',
+    glow: 'rgba(255,0,85,0.35)',
+    rotate: -8,
   },
   {
     name: 'Spicy Peri Peri',
-    shortName: ['SPICY', 'PERI PERI'],
+    lines: ['SPICY', 'PERI PERI'],
     primary: '#CC2200',
     secondary: '#7A1000',
-    logo: '#FFB347',
-    proteinColor: '#FFB347',
-    emissive: '#220500',
-    stripe: '#FF8C00',
+    accent: '#FFB347',
+    glow: 'rgba(255,61,0,0.35)',
+    rotate: 3,
   },
   {
     name: 'Lemon Herb',
-    shortName: ['LEMON', 'HERB'],
+    lines: ['LEMON', 'HERB'],
     primary: '#007A75',
     secondary: '#004D4A',
-    logo: '#CBFF00',
-    proteinColor: '#CBFF00',
-    emissive: '#001A18',
-    stripe: '#CBFF00',
+    accent: '#CBFF00',
+    glow: 'rgba(0,181,173,0.35)',
+    rotate: -4,
   },
 ]
 
-function createPouchTexture(flavorIndex: number): THREE.CanvasTexture {
-  const flavor = flavorData[flavorIndex]
+// Generate a pouch image via canvas and return a data URL
+function buildPouchDataUrl(flavorIndex: number, width = 320, height = 480): string {
+  const f = flavors[flavorIndex]
   const canvas = document.createElement('canvas')
-  canvas.width = 512
-  canvas.height = 768
+  canvas.width = width
+  canvas.height = height
   const ctx = canvas.getContext('2d')!
 
   // Background gradient
-  const bg = ctx.createLinearGradient(0, 0, 0, 768)
-  bg.addColorStop(0, flavor.primary)
-  bg.addColorStop(0.6, flavor.secondary)
-  bg.addColorStop(1, flavor.primary)
+  const bg = ctx.createLinearGradient(0, 0, 0, height)
+  bg.addColorStop(0, f.primary)
+  bg.addColorStop(0.55, f.secondary)
+  bg.addColorStop(1, f.primary)
   ctx.fillStyle = bg
-  ctx.fillRect(0, 0, 512, 768)
+  ctx.fillRect(0, 0, width, height)
 
-  // Subtle diagonal lines
+  // Diagonal lines texture
   ctx.save()
-  ctx.globalAlpha = 0.07
-  for (let i = -768; i < 1100; i += 18) {
+  ctx.globalAlpha = 0.06
+  for (let i = -height; i < width + height; i += 14) {
     ctx.beginPath()
     ctx.moveTo(i, 0)
-    ctx.lineTo(i + 768, 768)
+    ctx.lineTo(i + height, height)
     ctx.strokeStyle = '#fff'
     ctx.lineWidth = 1
     ctx.stroke()
@@ -86,255 +63,170 @@ function createPouchTexture(flavorIndex: number): THREE.CanvasTexture {
 
   // Header bar
   ctx.fillStyle = 'rgba(0,0,0,0.35)'
-  ctx.fillRect(0, 0, 512, 56)
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'
-  ctx.font = 'bold 12px Arial'
+  ctx.fillRect(0, 0, width, 36)
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'
+  ctx.font = `bold ${Math.floor(width * 0.028)}px Arial`
   ctx.textAlign = 'center'
-  ctx.fillText('ZERO PRESERVATIVES  ·  ZERO OIL  ·  ZERO ADDITIVES', 256, 33)
+  ctx.fillText('ZERO PRESERVATIVES · ZERO OIL', width / 2, 22)
 
   // Brand name
-  ctx.shadowColor = 'rgba(0,0,0,0.6)'
+  ctx.shadowColor = 'rgba(0,0,0,0.7)'
   ctx.shadowBlur = 8
-  ctx.fillStyle = flavor.logo
-  ctx.font = 'bold 60px Arial'
+  ctx.fillStyle = f.accent
+  const brandSize = Math.floor(width * 0.13)
+  ctx.font = `bold ${brandSize}px Arial`
   ctx.textAlign = 'left'
-  ctx.fillText('ULTIMATE', 28, 140)
-  ctx.fillText('CHICKEN', 28, 205)
+  ctx.fillText('ULTIMATE', 18, height * 0.2)
+  ctx.fillText('CHICKEN', 18, height * 0.2 + brandSize * 1.05)
   ctx.shadowBlur = 0
 
-  // Diagonal stripe behind flavor name
+  // Diagonal stripe
   ctx.save()
   ctx.fillStyle = 'rgba(0,0,0,0.38)'
   ctx.beginPath()
-  ctx.moveTo(0, 232)
-  ctx.lineTo(512, 252)
-  ctx.lineTo(512, 368)
-  ctx.lineTo(0, 348)
+  const stripeTop = height * 0.42
+  ctx.moveTo(0, stripeTop)
+  ctx.lineTo(width, stripeTop + height * 0.025)
+  ctx.lineTo(width, stripeTop + height * 0.19)
+  ctx.lineTo(0, stripeTop + height * 0.165)
   ctx.closePath()
   ctx.fill()
   ctx.restore()
 
   // Flavor name
   ctx.shadowColor = 'rgba(0,0,0,0.9)'
-  ctx.shadowBlur = 12
+  ctx.shadowBlur = 10
   ctx.fillStyle = '#FFFFFF'
-  ctx.font = 'bold 60px Arial'
+  const fnSize = Math.floor(width * 0.135)
+  ctx.font = `bold ${fnSize}px Arial`
   ctx.textAlign = 'left'
-  flavor.shortName.forEach((line, i) => {
-    ctx.fillText(line, 28, 286 + i * 68)
+  f.lines.forEach((line, i) => {
+    ctx.fillText(line, 18, height * 0.47 + i * fnSize * 1.1)
   })
   ctx.shadowBlur = 0
 
-  // Protein badge (manual rounded rect)
-  const bx = 28, by = 618, bw = 196, bh = 96
+  // Protein badge
+  const bx = 18, by = height * 0.78, bw = width * 0.54, bh = height * 0.16
   ctx.fillStyle = 'rgba(0,0,0,0.45)'
-  drawRoundedRect(ctx, bx, by, bw, bh, 12)
-  ctx.fill()
-
-  ctx.fillStyle = flavor.proteinColor
-  ctx.font = 'bold 54px Arial'
-  ctx.textAlign = 'left'
-  ctx.fillText('27g', bx + 14, by + 62)
-
-  ctx.fillStyle = 'rgba(255,255,255,0.8)'
-  ctx.font = 'bold 17px Arial'
-  ctx.fillText('PROTEIN', bx + 14, by + 83)
-
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'
-  ctx.font = 'bold 14px Arial'
-  ctx.fillText('150 CAL', bx + 115, by + 83)
-
-  // FSSAI badge
-  ctx.save()
-  ctx.fillStyle = 'rgba(255,255,255,0.12)'
   ctx.beginPath()
-  ctx.arc(460, 650, 28, 0, Math.PI * 2)
+  const r = 10
+  ctx.moveTo(bx + r, by)
+  ctx.lineTo(bx + bw - r, by)
+  ctx.arcTo(bx + bw, by, bx + bw, by + r, r)
+  ctx.lineTo(bx + bw, by + bh - r)
+  ctx.arcTo(bx + bw, by + bh, bx + bw - r, by + bh, r)
+  ctx.lineTo(bx + r, by + bh)
+  ctx.arcTo(bx, by + bh, bx, by + bh - r, r)
+  ctx.lineTo(bx, by + r)
+  ctx.arcTo(bx, by, bx + r, by, r)
+  ctx.closePath()
   ctx.fill()
-  ctx.fillStyle = 'rgba(255,255,255,0.65)'
-  ctx.font = 'bold 9px Arial'
-  ctx.textAlign = 'center'
-  ctx.fillText('FSSAI', 460, 647)
-  ctx.fillText('CERT.', 460, 659)
-  ctx.restore()
+
+  ctx.fillStyle = f.accent
+  ctx.font = `bold ${Math.floor(bh * 0.62)}px Arial`
+  ctx.textAlign = 'left'
+  ctx.fillText('27g', bx + 10, by + bh * 0.66)
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'
+  ctx.font = `bold ${Math.floor(bh * 0.28)}px Arial`
+  ctx.fillText('PROTEIN · 150 CAL', bx + 10, by + bh * 0.9)
 
   // Bottom bar
   ctx.fillStyle = 'rgba(0,0,0,0.4)'
-  ctx.fillRect(0, 724, 512, 44)
-  ctx.fillStyle = 'rgba(255,255,255,0.65)'
-  ctx.font = 'bold 12px Arial'
+  ctx.fillRect(0, height - 28, width, 28)
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'
+  ctx.font = `bold ${Math.floor(width * 0.028)}px Arial`
   ctx.textAlign = 'center'
-  ctx.fillText('READY TO EAT  ·  NO ARTIFICIAL STUFF', 256, 750)
+  ctx.fillText('READY TO EAT · NO ARTIFICIAL STUFF', width / 2, height - 9)
 
-  return new THREE.CanvasTexture(canvas)
+  return canvas.toDataURL('image/png')
 }
 
-// ─── Single 3D Pouch ──────────────────────────────────────────────────────────
-function SinglePouch({
+// Individual CSS 3D Pouch
+function CSSPouch({
   flavorIndex,
-  position,
-  rotation,
-  scale = 1,
+  size = 'md',
+  animClass = 'pouch-float-1',
+  extraRotate = 0,
 }: {
   flavorIndex: number
-  position: [number, number, number]
-  rotation?: [number, number, number]
-  scale?: number
+  size?: 'sm' | 'md' | 'lg'
+  animClass?: string
+  extraRotate?: number
 }) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const texture = useMemo(() => createPouchTexture(flavorIndex), [flavorIndex])
-  const flavor = flavorData[flavorIndex]
-  const offset = flavorIndex * 2.1
+  const f = flavors[flavorIndex]
+  const [imgUrl, setImgUrl] = useState<string>('')
+  const dims = { sm: [160, 240], md: [220, 330], lg: [280, 420] }[size]!
 
-  useFrame((state) => {
-    if (!meshRef.current) return
-    const t = state.clock.elapsedTime + offset
-    meshRef.current.position.y = position[1] + Math.sin(t * 0.55) * 0.11
-    meshRef.current.rotation.y = (rotation?.[1] ?? 0) + Math.sin(t * 0.28) * 0.14
-    meshRef.current.rotation.z = (rotation?.[2] ?? 0) + Math.sin(t * 0.38) * 0.035
-  })
+  useEffect(() => {
+    setImgUrl(buildPouchDataUrl(flavorIndex, dims[0] * 2, dims[1] * 2))
+  }, [flavorIndex, dims[0], dims[1]])
 
-  return (
-    <mesh ref={meshRef} position={position} rotation={rotation ?? [0.05, -0.2, 0.04]} scale={scale} castShadow>
-      <boxGeometry args={[1.1, 1.65, 0.17]} />
-      <meshPhysicalMaterial
-        map={texture}
-        metalness={0.12}
-        roughness={0.28}
-        clearcoat={0.55}
-        clearcoatRoughness={0.12}
-        emissive={new THREE.Color(flavor.emissive)}
-        emissiveIntensity={0.25}
-      />
-    </mesh>
-  )
-}
-
-// ─── Hero scene: all 3 pouches ────────────────────────────────────────────────
-function HeroScene() {
-  const { viewport } = useThree()
-  const s = Math.min(viewport.width / 4.2, 1.15)
-  return (
-    <>
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[5, 8, 5]} intensity={1.6} />
-      <directionalLight position={[-3, 2, -4]} intensity={0.35} color="#CBFF00" />
-      <pointLight position={[0, -3, 3]} intensity={0.45} />
-      <Float speed={1.4} rotationIntensity={0.28} floatIntensity={0.45}>
-        <SinglePouch flavorIndex={0} position={[-1.35 * s, 0.4, 0]} rotation={[0.05, 0.42, -0.07]} scale={s * 0.87} />
-      </Float>
-      <Float speed={1.1} rotationIntensity={0.22} floatIntensity={0.38}>
-        <SinglePouch flavorIndex={2} position={[0, 0, 0.3]} rotation={[0.0, -0.06, 0.04]} scale={s} />
-      </Float>
-      <Float speed={1.7} rotationIntensity={0.32} floatIntensity={0.55}>
-        <SinglePouch flavorIndex={1} position={[1.35 * s, -0.3, -0.2]} rotation={[0.05, -0.46, 0.06]} scale={s * 0.87} />
-      </Float>
-    </>
-  )
-}
-
-// ─── Single flavor scene ──────────────────────────────────────────────────────
-function IsolatedScene({ flavorIndex }: { flavorIndex: number }) {
-  const { viewport } = useThree()
-  const s = Math.min(viewport.width / 3.2, 1.55)
-  return (
-    <>
-      <ambientLight intensity={0.75} />
-      <directionalLight position={[4, 6, 4]} intensity={2} />
-      <pointLight position={[-4, 0, 4]} intensity={0.7} color={flavorData[flavorIndex].stripe} />
-      <Float speed={1.3} rotationIntensity={0.38} floatIntensity={0.55}>
-        <SinglePouch flavorIndex={flavorIndex} position={[0, 0, 0]} rotation={[0.05, -0.2, 0.04]} scale={s} />
-      </Float>
-    </>
-  )
-}
-
-// ─── Error boundary ───────────────────────────────────────────────────────────
-class PouchErrorBoundary extends Component<
-  { children: ReactNode; fallback: ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: ReactNode; fallback: ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
-  render() {
-    if (this.state.hasError) return this.props.fallback
-    return this.props.children
-  }
-}
-
-// ─── CSS fallback pouches (shown when WebGL unavailable) ──────────────────────
-function CSSPouch({ flavorIndex, className = '' }: { flavorIndex: number; className?: string }) {
-  const f = flavorData[flavorIndex]
   return (
     <div
-      className={`relative rounded-3xl overflow-hidden shadow-2xl ${className}`}
+      className={animClass}
       style={{
-        background: `linear-gradient(160deg, ${f.primary} 0%, ${f.secondary} 100%)`,
-        width: 160,
-        height: 240,
+        width: dims[0],
+        height: dims[1],
         flexShrink: 0,
+        perspective: 800,
       }}
     >
-      <div className="absolute inset-0 flex flex-col items-start justify-between p-4">
-        <div>
-          <div className="font-display font-black text-xs leading-tight" style={{ color: f.logo }}>
-            ULTIMATE<br />CHICKEN
-          </div>
-        </div>
-        <div>
-          <div className="font-display font-black text-xl text-white leading-none">
-            {f.shortName.join('\n')}
-          </div>
-        </div>
-        <div className="bg-black/30 rounded-xl px-3 py-2 text-center">
-          <div className="font-black text-xl" style={{ color: f.proteinColor }}>27g</div>
-          <div className="text-white/70 text-xs font-bold">PROTEIN</div>
-        </div>
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: 24,
+          overflow: 'hidden',
+          transform: `rotateY(${f.rotate + extraRotate}deg) rotateX(6deg)`,
+          boxShadow: `0 30px 80px rgba(0,0,0,0.5), 0 0 60px ${f.glow}`,
+          background: `linear-gradient(160deg, ${f.primary} 0%, ${f.secondary} 100%)`,
+          backgroundImage: imgUrl ? `url(${imgUrl})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          position: 'relative',
+        }}
+      >
+        {/* Plastic shine overlay */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
+          borderRadius: 24,
+          pointerEvents: 'none',
+        }} />
+        {/* Edge highlight */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: 24,
+          border: '1px solid rgba(255,255,255,0.2)',
+          pointerEvents: 'none',
+        }} />
       </div>
     </div>
   )
 }
 
-function HeroFallback() {
+// Hero: all 3 pouches
+function HeroPouches() {
   return (
     <div className="w-full h-full flex items-center justify-center gap-4 md:gap-6">
-      {[0, 2, 1].map((i) => (
-        <CSSPouch
-          key={i}
-          flavorIndex={i}
-          className={`pouch-float-${i + 1} ${i === 2 ? 'hidden md:block' : ''}`}
-        />
-      ))}
+      <CSSPouch flavorIndex={0} size="sm" animClass="pouch-float-1" />
+      <CSSPouch flavorIndex={2} size="md" animClass="pouch-float-2" />
+      <CSSPouch flavorIndex={1} size="sm" animClass="pouch-float-3" />
     </div>
   )
 }
 
-function IsolatedFallback({ flavorIndex }: { flavorIndex: number }) {
-  const f = flavorData[flavorIndex]
+// Single flavor pouch
+function SingleFlavorPouch({ flavorIndex }: { flavorIndex: number }) {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div
-        className="pouch-float-1 relative rounded-3xl overflow-hidden shadow-2xl"
-        style={{ background: `linear-gradient(160deg, ${f.primary} 0%, ${f.secondary} 100%)`, width: 220, height: 330 }}
-      >
-        <div className="absolute inset-0 flex flex-col items-start justify-between p-6">
-          <div className="font-display font-black text-sm leading-tight" style={{ color: f.logo }}>ULTIMATE<br />CHICKEN</div>
-          <div className="font-display font-black text-3xl text-white leading-none">{f.shortName.join('\n')}</div>
-          <div className="bg-black/30 rounded-xl px-4 py-3">
-            <div className="font-black text-3xl" style={{ color: f.proteinColor }}>27g</div>
-            <div className="text-white/70 text-xs font-bold">PROTEIN</div>
-          </div>
-        </div>
-      </div>
+      <CSSPouch flavorIndex={flavorIndex} size="lg" animClass="pouch-float-1" />
     </div>
   )
 }
 
-// ─── Main export ──────────────────────────────────────────────────────────────
 export default function PouchScene({
   flavorIndex,
 }: {
@@ -342,53 +234,28 @@ export default function PouchScene({
   isolated?: boolean
 }) {
   const [mounted, setMounted] = useState(false)
-  const [webglOk, setWebglOk] = useState(true)
 
   useEffect(() => {
     setMounted(true)
-    // Quick WebGL check
-    try {
-      const canvas = document.createElement('canvas')
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
-      if (!gl) setWebglOk(false)
-    } catch {
-      setWebglOk(false)
-    }
   }, [])
 
   if (!mounted) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="w-32 h-48 bg-white/10 rounded-2xl animate-pulse" />
+      <div className="w-full h-full flex items-center justify-center gap-4">
+        {(flavorIndex === -1 ? [0, 1, 2] : [flavorIndex]).map((i) => (
+          <div
+            key={i}
+            className="rounded-3xl animate-pulse"
+            style={{
+              width: flavorIndex === -1 ? 160 : 260,
+              height: flavorIndex === -1 ? 240 : 390,
+              background: `linear-gradient(160deg, ${flavors[i].primary}99, ${flavors[i].secondary}99)`,
+            }}
+          />
+        ))}
       </div>
     )
   }
 
-  if (!webglOk) {
-    return flavorIndex === -1
-      ? <HeroFallback />
-      : <IsolatedFallback flavorIndex={flavorIndex} />
-  }
-
-  const fallback = flavorIndex === -1
-    ? <HeroFallback />
-    : <IsolatedFallback flavorIndex={flavorIndex} />
-
-  return (
-    <PouchErrorBoundary fallback={fallback}>
-      <Canvas
-        camera={{ position: [0, 0, 5], fov: 40 }}
-        gl={{ antialias: true, alpha: true, failIfMajorPerformanceCaveat: false }}
-        dpr={[1, 1.5]}
-        style={{ background: 'transparent' }}
-        onCreated={({ gl }) => {
-          gl.setClearColor(0x000000, 0)
-        }}
-      >
-        <Suspense fallback={null}>
-          {flavorIndex === -1 ? <HeroScene /> : <IsolatedScene flavorIndex={flavorIndex} />}
-        </Suspense>
-      </Canvas>
-    </PouchErrorBoundary>
-  )
+  return flavorIndex === -1 ? <HeroPouches /> : <SingleFlavorPouch flavorIndex={flavorIndex} />
 }
