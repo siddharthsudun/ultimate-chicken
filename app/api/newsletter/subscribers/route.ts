@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllSubscribers, getSubscriberCount } from '@/lib/sheets'
+import { getAllSubscribers, getSubscriberCount } from '@/lib/contacts'
 
 function checkAuth(req: NextRequest): boolean {
   const authHeader = req.headers.get('authorization')
   if (!authHeader) return false
-  const token = authHeader.replace('Bearer ', '')
-  return token === process.env.DASHBOARD_PASSWORD
+  return authHeader.replace('Bearer ', '') === process.env.DASHBOARD_PASSWORD
 }
 
 export async function GET(req: NextRequest) {
@@ -18,7 +17,6 @@ export async function GET(req: NextRequest) {
       getAllSubscribers(),
       getSubscriberCount(),
     ])
-
     return NextResponse.json({ subscribers, count })
   } catch (err) {
     console.error('Subscribers fetch error:', err)
