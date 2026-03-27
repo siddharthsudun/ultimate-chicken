@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/newsletter/send/route": "app/api/newsletter/send/route.js",
+  "/api/newsletter/subscribers/route": "app/api/newsletter/subscribers/route.js",
+  "/api/waitlist/route": "app/api/waitlist/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/microplastics/page": "app/microplastics/page.js",
+  "/page": "app/page.js",
+  "/why-sous-vide/page": "app/why-sous-vide/page.js"
+}

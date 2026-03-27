@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/newsletter/send/route": "/api/newsletter/send",
+  "/api/newsletter/subscribers/route": "/api/newsletter/subscribers",
+  "/api/waitlist/route": "/api/waitlist",
+  "/dashboard/page": "/dashboard",
+  "/microplastics/page": "/microplastics",
+  "/page": "/",
+  "/why-sous-vide/page": "/why-sous-vide"
+}

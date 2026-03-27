@@ -1,0 +1,13 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/microplastics/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0~efd3g._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_0ovya-5.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0gz.z9l._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_06hehg4._.js")
+R.c("server/chunks/ssr/app_layout_tsx_13yf0ls._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_0inhx6q._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_forbidden_0ghu-f7.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0cjv-23.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0lgvd_..js")
+R.c("server/chunks/ssr/_next-internal_server_app_microplastics_page_actions_0-cf6jq.js")
+R.m(77795)
+module.exports=R.m(77795).exports

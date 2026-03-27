@@ -1,0 +1,13 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/why-sous-vide/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0g4er~-._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_07l9_o1.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0gz.z9l._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_06hehg4._.js")
+R.c("server/chunks/ssr/app_layout_tsx_13yf0ls._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_0inhx6q._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_forbidden_0ghu-f7.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0cjv-23.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0lgvd_..js")
+R.c("server/chunks/ssr/_next-internal_server_app_why-sous-vide_page_actions_0s~eqdl.js")
+R.m(43585)
+module.exports=R.m(43585).exports

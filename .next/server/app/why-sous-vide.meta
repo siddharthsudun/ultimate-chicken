@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/why-sous-vide/layout,_N_T_/why-sous-vide/page,_N_T_/why-sous-vide"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/why-sous-vide/__PAGE__",
+    "/why-sous-vide",
+    "/_index",
+    "/_head"
+  ]
+}
