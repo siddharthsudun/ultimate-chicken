@@ -34,3 +34,8 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+.env*.local
+
+# Vercel CLI env pulls
+.env.local.test
+.env*.test

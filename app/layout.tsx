@@ -1,40 +1,55 @@
 import type { Metadata } from 'next'
+import { Barlow_Condensed, DM_Sans } from 'next/font/google'
 import './globals.css'
 
+const barlow = Barlow_Condensed({
+  weight: ['600', '700', '800', '900'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-barlow',
+  display: 'swap',
+})
+
+const dmSans = DM_Sans({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-dm',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
-  title: 'Ultimate Chicken™ — Real Food. Real Protein.',
-  description: 'India\'s first sous vide, ready-to-eat high-protein chicken. 27g protein, 150 calories, zero preservatives. Launching first at BITS Pilani.',
-  keywords: ['high protein food', 'ready to eat chicken', 'sous vide chicken', 'protein food india', 'healthy food BITS Pilani', 'Korean BBQ chicken', 'zero preservatives'],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://ultimatechicken.in'),
+  title: 'Ultimate Chicken™ — Ready-To-Eat Sous Vide Chicken. 27g Protein.',
+  description:
+    "India's first ready-to-eat sous vide chicken. Lives in your fridge. Tear the pouch, eat it cold or microwave 60 seconds. 27g protein, zero preservatives.",
+  keywords: [
+    'ready to eat chicken',
+    'sous vide chicken india',
+    'high protein food',
+    'protein snack india',
+    'eat from wrapper chicken',
+    'zero preservatives chicken',
+    'BITS Pilani startup',
+    'Korean Gochugaru chicken',
+    'Peri Peri chicken protein',
+  ],
   openGraph: {
-    title: 'Ultimate Chicken™ — Real Food. Real Protein.',
-    description: 'India\'s first sous vide RTE high-protein chicken. Launching at BITS Pilani.',
+    title: 'Ultimate Chicken™ — Chicken That Actually Does The Work For You.',
+    description:
+      'Ready-to-eat sous vide chicken. Straight from the fridge: tear, push up, bite. Or 60 seconds in the microwave. 27g protein. Zero preservatives.',
     type: 'website',
-    images: ['/og-image.jpg'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Ultimate Chicken™',
-    description: 'Real Food. Real Protein. Launching at BITS Pilani.',
-  },
-  icons: {
-    icon: '/favicon.ico',
+    description: 'Real Food. Real Protein. Ready to eat, straight from the pouch.',
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body suppressHydrationWarning>
-        {children}
-      </body>
+    <html lang="en" suppressHydrationWarning className={`${barlow.variable} ${dmSans.variable}`}>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   )
 }

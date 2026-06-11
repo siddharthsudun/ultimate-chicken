@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
     }
 
-    // Send welcome email (non-blocking)
-    sendWelcomeEmail(email.trim(), name?.trim()).catch(console.error)
+    // Send welcome email before returning
+    await sendWelcomeEmail(email.trim(), name?.trim()).catch(console.error)
 
     return NextResponse.json({
       success: true,
