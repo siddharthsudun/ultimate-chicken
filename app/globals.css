@@ -11,12 +11,13 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { overflow-x: hidden; scroll-behavior: smooth; }
+/* overflow-x: clip (not hidden) — hidden creates a scroll container and breaks position: sticky */
+html { overflow-x: clip; scroll-behavior: smooth; }
 body {
   background-color: var(--cream);
   color: var(--green);
   font-family: var(--font-dm), system-ui, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 

@@ -10,19 +10,18 @@ import Reveal from '@/components/Reveal'
 import type { Flavour } from '@/lib/flavours'
 import { FLAVOURS } from '@/lib/flavours'
 
-/* One giant stat that fades in/out over its slice of the scroll. */
-function ScrollStat({
+/* One full-screen text slide that fades in/out over its slice of the scroll.
+   The image behind stays pinned — only this text moves. */
+function ScrollSlide({
   progress,
   index,
   total,
-  top,
-  bottom,
+  children,
 }: {
   progress: MotionValue<number>
   index: number
   total: number
-  top: string
-  bottom: string
+  children: React.ReactNode
 }) {
   const sliceStart = index / total
   const sliceEnd = (index + 1) / total
@@ -39,15 +38,12 @@ function ScrollStat({
       style={{ opacity, y }}
       className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center"
     >
-      <p className="stat-num text-[26vw] text-white drop-shadow-[0_4px_40px_rgba(0,0,0,0.45)] md:text-[17rem]">
-        {top}
-      </p>
-      <p className="shout mt-2 text-4xl text-white/90 drop-shadow-lg md:text-6xl">{bottom}</p>
+      {children}
     </motion.div>
   )
 }
 
-/* Sticky full-screen product image with scroll-swapped macro stats. */
+/* Sticky full-screen product image; scrolling swaps macros, then the ingredient list. */
 function MacroScroller({ flavour }: { flavour: Flavour }) {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
@@ -56,11 +52,11 @@ function MacroScroller({ flavour }: { flavour: Flavour }) {
     [`${flavour.protein}g`, 'Protein'],
     [`${flavour.calories}`, 'Calories'],
     ['0', 'Preservatives'],
-    ['60s', 'Microwave. Or eat it cold.'],
   ]
+  const total = stats.length + 1 // + ingredients slide
 
   return (
-    <div ref={ref} style={{ height: `${stats.length * 100 + 60}vh` }} className="relative">
+    <div ref={ref} style={{ height: `${total * 100 + 60}vh` }} className="relative">
       <div className="sticky-media overflow-hidden">
         <Image
           src={flavour.image}
@@ -76,15 +72,31 @@ function MacroScroller({ flavour }: { flavour: Flavour }) {
           }}
         />
         {stats.map(([top, bottom], i) => (
-          <ScrollStat
-            key={bottom}
-            progress={scrollYProgress}
-            index={i}
-            total={stats.length}
-            top={top}
-            bottom={bottom}
-          />
+          <ScrollSlide key={bottom} progress={scrollYProgress} index={i} total={total}>
+            <p className="stat-num text-[26vw] text-white drop-shadow-[0_4px_40px_rgba(0,0,0,0.45)] md:text-[17rem]">
+              {top}
+            </p>
+            <p className="shout mt-2 text-4xl text-white/90 drop-shadow-lg md:text-6xl">{bottom}</p>
+          </ScrollSlide>
         ))}
+        <ScrollSlide progress={scrollYProgress} index={stats.length} total={total}>
+          <p className="shout text-3xl text-white/80 drop-shadow-lg md:text-4xl">
+            Every ingredient
+          </p>
+          <ul className="mt-5 space-y-1">
+            {flavour.ingredients.map((ing) => (
+              <li
+                key={ing}
+                className="shout text-4xl text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)] md:text-6xl"
+              >
+                {ing}
+              </li>
+            ))}
+          </ul>
+          <p className="shout mt-6 text-3xl drop-shadow-lg md:text-5xl" style={{ color: flavour.glow }}>
+            + nothing else.
+          </p>
+        </ScrollSlide>
       </div>
     </div>
   )
@@ -180,7 +192,7 @@ export default function FlavourStory({ flavour }: { flavour: Flavour }) {
                 {[
                   ['Whole chicken breast', '150g raw, 120g cooked. One piece. Not reformed, not shredded, not paste.'],
                   ['Marinade does the work', 'Flavour penetrates during the 90-minute sous vide cook — all the way through, not painted on top.'],
-                  ['Nothing artificial', 'Zero preservatives, zero added oil, zero sugar, zero colour. Eurofins tested, FSSAI registered.'],
+                  ['Nothing artificial', 'Zero preservatives, zero additives, zero artificial colour. Eurofins tested, FSSAI registered.'],
                   [
                     flavour.allergens.length > 0 ? `Allergens: ${flavour.allergens.join(', ')}` : 'Allergens: none',
                     flavour.allergens.length > 0

@@ -9,6 +9,7 @@ export type Flavour = {
   tagline: string
   description: string
   flavourNotes: string[]
+  ingredients: string[]
   allergens: string[]
   // visual system
   primary: string
@@ -31,6 +32,7 @@ export const FLAVOURS: Flavour[] = [
     description:
       'Gochugaru and fermented chili paste, slow-cooked into the breast. Bold, umami-forward heat that actually builds. Our heaviest hitter.',
     flavourNotes: ['Fermented chili', 'Smoky-sweet glaze', 'Umami heavy'],
+    ingredients: ['Chicken breast', 'Gochugaru chili powder', 'Soy sauce', 'Sesame oil', 'Salt', 'Garlic powder', 'Stevia'],
     allergens: ['Sesame', 'Soy'],
     primary: '#E8253D',
     glow: '#FF5C4D',
@@ -50,7 +52,8 @@ export const FLAVOURS: Flavour[] = [
     description:
       'Deep soy glaze with toasted garlic and a controlled chili burn. Savoury, dark, dangerously easy to finish in one sitting.',
     flavourNotes: ['Dark soy glaze', 'Toasted garlic', 'Controlled burn'],
-    allergens: ['Soy'],
+    ingredients: ['Chicken breast', 'Soy sauce', 'Honey', 'Sesame oil', 'Garlic powder', 'Chili flakes', 'Pepper'],
+    allergens: ['Soy', 'Sesame'],
     primary: '#E8920C',
     glow: '#FFB347',
     deep: '#1D1104',
@@ -69,6 +72,7 @@ export const FLAVOURS: Flavour[] = [
     description:
       "Bird's eye chili, citrus and paprika. Bright, sharp heat with the leanest macros in the lineup. The gym-rat default.",
     flavourNotes: ["Bird's eye chili", 'Citrus + paprika', 'Leanest macros'],
+    ingredients: ['Chicken breast', 'Peri-peri', 'Salt', 'Garlic powder', 'Pepper'],
     allergens: [],
     primary: '#FF4D00',
     glow: '#FF8A3D',
