@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { safeEqual, rateLimit, clientIp } from '@/lib/security'
 
 export async function POST(req: NextRequest) {
+  const pw = process.env.DASHBOARD_PASSWORD
+  const token = (req.headers.get('authorization') || '').replace('Bearer ', '')
+  if (!pw || !safeEqual(token, pw)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  if (!rateLimit(`outreachsend:${clientIp(req)}`, 20, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
+  }
+
   const { to, subject, body, fromName } = await req.json()
 
   const apiKey = process.env.RESEND_API_KEY

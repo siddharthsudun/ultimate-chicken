@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+import { safeEqual } from '@/lib/security'
 
 const DATA_FILE = path.join(process.cwd(), 'outreach', 'contacts_web.json')
+
+function authed(req: NextRequest): boolean {
+  const pw = process.env.DASHBOARD_PASSWORD
+  if (!pw) return false
+  const token = (req.headers.get('authorization') || '').replace('Bearer ', '')
+  return safeEqual(token, pw)
+}
 
 export interface Contact {
   id: string
@@ -29,11 +37,13 @@ function save(contacts: Contact[]) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(contacts, null, 2))
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!authed(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   return NextResponse.json(load())
 }
 
 export async function POST(req: NextRequest) {
+  if (!authed(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const body = await req.json()
   const contacts = load()
 

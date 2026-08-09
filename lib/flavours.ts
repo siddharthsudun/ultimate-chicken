@@ -17,6 +17,8 @@ export type Flavour = {
   deep: string
   image: string
   imageAlt: string
+  pouch: string
+  price: number
 }
 
 export const FLAVOURS: Flavour[] = [
@@ -26,7 +28,7 @@ export const FLAVOURS: Flavour[] = [
     shortName: 'Gochugaru',
     protein: 27,
     calories: 180,
-    weight: '120g cooked',
+    weight: '140g',
     heat: 3,
     tagline: 'Fermented chili. Smoky-sweet. The loud one.',
     description:
@@ -39,6 +41,8 @@ export const FLAVOURS: Flavour[] = [
     deep: '#26060C',
     image: '/products/korean-gochugaru.jpg',
     imageAlt: 'Korean Gochugaru sous vide chicken breast in vacuum pouch',
+    pouch: '/products/pouch-korean.jpg',
+    price: 189,
   },
   {
     slug: 'soy-chili-garlic',
@@ -46,7 +50,7 @@ export const FLAVOURS: Flavour[] = [
     shortName: 'Soy Chili Garlic',
     protein: 27,
     calories: 160,
-    weight: '120g cooked',
+    weight: '140g',
     heat: 2,
     tagline: 'Dark soy. Toasted garlic. Slow burn.',
     description:
@@ -59,6 +63,8 @@ export const FLAVOURS: Flavour[] = [
     deep: '#1D1104',
     image: '/products/soy-chili-garlic.jpg',
     imageAlt: 'Soy Chili Garlic sous vide chicken breast in vacuum pouch',
+    pouch: '/products/pouch-soy.jpg',
+    price: 179,
   },
   {
     slug: 'peri-peri',
@@ -66,7 +72,7 @@ export const FLAVOURS: Flavour[] = [
     shortName: 'Peri-Peri',
     protein: 27,
     calories: 140,
-    weight: '120g cooked',
+    weight: '140g',
     heat: 3,
     tagline: "African bird's eye chili. Bright. Relentless.",
     description:
@@ -79,6 +85,8 @@ export const FLAVOURS: Flavour[] = [
     deep: '#220D02',
     image: '/products/peri-peri.jpg',
     imageAlt: 'Peri-Peri sous vide chicken breast in vacuum pouch',
+    pouch: '/products/pouch-peri.jpg',
+    price: 169,
   },
 ]
 

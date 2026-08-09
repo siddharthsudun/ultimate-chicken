@@ -67,6 +67,21 @@ body {
 .tag-slab > * { transform: skewX(6deg); display: inline-block; }
 .tag-slab--lime { background: var(--lime); color: var(--green-deep); }
 
+/* Inline highlight — dark-green slab w/ lime text, for use inside light-bg headings.
+   box-decoration-break: clone keeps each wrapped line boxed cleanly (no overlap). */
+.hl {
+  background: var(--green-deep);
+  color: var(--lime);
+  padding: 0.02em 0.22em;
+  margin: 0 -0.04em;
+  border-radius: 4px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+/* Headings that contain an .hl chip need a touch more line spacing so stacked
+   chips never collide against the tight .shout line-height. */
+.has-hl { line-height: 1.05; }
+
 /* ─── Buttons ─── */
 .btn-lime {
   display: inline-flex;

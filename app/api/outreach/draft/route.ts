@@ -13,7 +13,7 @@ About Ultimate Chicken:
 - 3 flavors: Korean BBQ, Spicy Peri Peri, Lemon Herb
 - Sous vide cooked (Michelin-star technique): vacuum-sealed, precise temperature, juiciest chicken possible
 - Eat straight from the wrapper — no cooking, no mess, pure protein
-- Zero preservatives, zero oil, zero artificial additives
+- Zero preservatives, zero artificial additives
 - 8-10 microplastic particles per serving (vs 110,000+ in a water bottle) — third-party Eurofins tested
 - Targeting Gen Z fitness culture at Indian colleges, starting with BITS Pilani
 - Company: Ultimate Protein Foods LLP, BITS Pilani

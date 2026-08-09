@@ -7,6 +7,7 @@ import { motion, useScroll, useTransform, MotionValue } from 'framer-motion'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import Reveal from '@/components/Reveal'
+import OrderButton from '@/components/OrderButton'
 import type { Flavour } from '@/lib/flavours'
 import { FLAVOURS } from '@/lib/flavours'
 
@@ -16,11 +17,13 @@ function ScrollSlide({
   progress,
   index,
   total,
+  className,
   children,
 }: {
   progress: MotionValue<number>
   index: number
   total: number
+  className?: string
   children: React.ReactNode
 }) {
   const sliceStart = index / total
@@ -36,15 +39,19 @@ function ScrollSlide({
   return (
     <motion.div
       style={{ opacity, y }}
-      className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center"
+      className={
+        className ?? 'absolute inset-0 flex flex-col items-center justify-center px-5 text-center'
+      }
     >
       {children}
     </motion.div>
   )
 }
 
-/* Sticky full-screen product image; scrolling swaps macros, then the ingredient list. */
-function MacroScroller({ flavour }: { flavour: Flavour }) {
+/* Sticky full-screen product image, constant from the very first screen.
+   The hero is the first slide; scrolling then swaps macros, then the ingredient list.
+   Only the text moves — the image never changes. */
+function StoryScroller({ flavour }: { flavour: Flavour }) {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
 
@@ -53,7 +60,7 @@ function MacroScroller({ flavour }: { flavour: Flavour }) {
     [`${flavour.calories}`, 'Calories'],
     ['0', 'Preservatives'],
   ]
-  const total = stats.length + 1 // + ingredients slide
+  const total = stats.length + 2 // hero slide + macro slides + ingredients slide
 
   return (
     <div ref={ref} style={{ height: `${total * 100 + 60}vh` }} className="relative">
@@ -62,24 +69,69 @@ function MacroScroller({ flavour }: { flavour: Flavour }) {
           src={flavour.image}
           alt={flavour.imageAlt}
           fill
+          priority
           className="object-cover"
           sizes="100vw"
         />
         <div
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(to bottom, ${flavour.deep}99, transparent 30%, transparent 60%, ${flavour.deep}CC)`,
+            background: `linear-gradient(to bottom, ${flavour.deep}99, transparent 30%, transparent 55%, ${flavour.deep}EE)`,
           }}
         />
+
+        {/* Slide 0 — hero */}
+        <ScrollSlide
+          progress={scrollYProgress}
+          index={0}
+          total={total}
+          className="absolute inset-0 flex flex-col justify-end px-5 pb-16 pt-28 md:px-8"
+        >
+          <div className="mx-auto w-full max-w-7xl">
+            <span
+              className="tag-slab text-base md:text-lg"
+              style={{ backgroundColor: flavour.primary, color: '#fff' }}
+            >
+              <span>
+                {'●'.repeat(flavour.heat)}
+                {'○'.repeat(3 - flavour.heat)} · Sous-vide · Ready to eat
+              </span>
+            </span>
+            <h1
+              className="shout mt-4 text-[16vw] leading-[0.85] md:text-[10rem]"
+              style={{ color: flavour.glow }}
+            >
+              {flavour.name}
+            </h1>
+            <p className="mt-4 max-w-lg text-xl font-medium text-cream/85">{flavour.tagline}</p>
+            <div className="mt-8 flex flex-wrap items-end gap-10 border-t border-white/20 pt-6 text-cream">
+              {[
+                [`${flavour.protein}g`, 'Protein'],
+                [`${flavour.calories}`, 'Calories'],
+                ['0', 'Preservatives'],
+                [flavour.weight, 'Per pouch'],
+              ].map(([num, label]) => (
+                <div key={label}>
+                  <p className="stat-num text-5xl md:text-6xl text-cream">{num}</p>
+                  <p className="section-label mt-1 !opacity-70 text-cream">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </ScrollSlide>
+
+        {/* Macro slides */}
         {stats.map(([top, bottom], i) => (
-          <ScrollSlide key={bottom} progress={scrollYProgress} index={i} total={total}>
+          <ScrollSlide key={bottom} progress={scrollYProgress} index={i + 1} total={total}>
             <p className="stat-num text-[26vw] text-white drop-shadow-[0_4px_40px_rgba(0,0,0,0.45)] md:text-[17rem]">
               {top}
             </p>
             <p className="shout mt-2 text-4xl text-white/90 drop-shadow-lg md:text-6xl">{bottom}</p>
           </ScrollSlide>
         ))}
-        <ScrollSlide progress={scrollYProgress} index={stats.length} total={total}>
+
+        {/* Ingredients slide */}
+        <ScrollSlide progress={scrollYProgress} index={stats.length + 1} total={total}>
           <p className="shout text-3xl text-white/80 drop-shadow-lg md:text-4xl">
             Every ingredient
           </p>
@@ -106,81 +158,28 @@ export default function FlavourStory({ flavour }: { flavour: Flavour }) {
   const others = FLAVOURS.filter((f) => f.slug !== flavour.slug)
 
   return (
-    <main style={{ backgroundColor: flavour.deep }} className="text-cream">
+    <main className="bg-cream text-green-deep">
       <Nav dark />
 
-      {/* ── Hero ── */}
-      <header className="relative flex min-h-screen flex-col justify-end overflow-hidden pb-14 pt-28">
-        <div className="absolute inset-0">
-          <Image
-            src={flavour.image}
-            alt={flavour.imageAlt}
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(to bottom, ${flavour.deep}66, transparent 35%, ${flavour.deep} 92%)`,
-            }}
-          />
-        </div>
-        <div className="relative mx-auto w-full max-w-7xl px-5 md:px-8">
-          <Reveal>
-            <span className="tag-slab text-base md:text-lg" style={{ backgroundColor: flavour.primary, color: '#fff' }}>
-              <span>
-                {'●'.repeat(flavour.heat)}
-                {'○'.repeat(3 - flavour.heat)} · Sous-vide · Ready to eat
-              </span>
-            </span>
-          </Reveal>
-          <Reveal delay={0.08}>
-            <h1 className="shout mt-4 text-[16vw] leading-[0.85] md:text-[10rem]" style={{ color: flavour.glow }}>
-              {flavour.name}
-            </h1>
-          </Reveal>
-          <Reveal delay={0.16}>
-            <p className="mt-4 max-w-lg text-xl font-medium text-cream/85">{flavour.tagline}</p>
-          </Reveal>
-          <Reveal delay={0.22}>
-            <div className="mt-8 flex flex-wrap items-end gap-10 border-t border-white/20 pt-6">
-              {[
-                [`${flavour.protein}g`, 'Protein'],
-                [`${flavour.calories}`, 'Calories'],
-                ['0', 'Preservatives'],
-                [flavour.weight, 'Per pouch'],
-              ].map(([num, label]) => (
-                <div key={label}>
-                  <p className="stat-num text-5xl md:text-6xl">{num}</p>
-                  <p className="section-label mt-1 !opacity-60">{label}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </header>
-
-      {/* ── Scroll-driven macro takeover ── */}
-      <MacroScroller flavour={flavour} />
+      {/* ── Hero + scroll-driven macro takeover over one constant image ── */}
+      <StoryScroller flavour={flavour} />
 
       {/* ── Flavour breakdown ── */}
       <section className="relative py-24 md:py-32">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="grid gap-14 md:grid-cols-2">
             <Reveal>
-              <p className="section-label" style={{ color: flavour.glow }}>
+              <p className="section-label" style={{ color: flavour.primary }}>
                 The flavour
               </p>
               <h2 className="shout mt-3 text-6xl md:text-7xl">What you&apos;re biting into</h2>
-              <p className="mt-5 max-w-md text-lg leading-relaxed text-cream/75">{flavour.description}</p>
+              <p className="mt-5 max-w-md text-lg leading-relaxed text-green-deep/75">{flavour.description}</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 {flavour.flavourNotes.map((n) => (
                   <span
                     key={n}
                     className="rounded-full border-2 px-5 py-2 font-condensed text-lg font-bold uppercase tracking-wide"
-                    style={{ borderColor: flavour.primary, color: flavour.glow }}
+                    style={{ borderColor: flavour.primary, color: flavour.primary }}
                   >
                     {n}
                   </span>
@@ -190,7 +189,7 @@ export default function FlavourStory({ flavour }: { flavour: Flavour }) {
             <Reveal delay={0.12}>
               <div className="space-y-4">
                 {[
-                  ['Whole chicken breast', '150g raw, 120g cooked. One piece. Not reformed, not shredded, not paste.'],
+                  ['Whole chicken breast', '140g per pouch. One piece. Not reformed, not shredded, not paste.'],
                   ['Marinade does the work', 'Flavour penetrates during the 90-minute sous vide cook — all the way through, not painted on top.'],
                   ['Nothing artificial', 'Zero preservatives, zero additives, zero artificial colour. Eurofins tested, FSSAI registered.'],
                   [
@@ -200,11 +199,11 @@ export default function FlavourStory({ flavour }: { flavour: Flavour }) {
                       : 'The cleanest sheet in the lineup.',
                   ],
                 ].map(([title, body]) => (
-                  <div key={title} className="rounded-2xl bg-white/5 p-6 backdrop-blur-sm">
-                    <h3 className="shout-upright text-2xl" style={{ color: flavour.glow }}>
+                  <div key={title} className="rounded-2xl border border-green-deep/10 bg-white p-6 shadow-sm">
+                    <h3 className="shout-upright text-2xl" style={{ color: flavour.primary }}>
                       {title}
                     </h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-cream/65">{body}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-green-deep/65">{body}</p>
                   </div>
                 ))}
               </div>
@@ -214,33 +213,33 @@ export default function FlavourStory({ flavour }: { flavour: Flavour }) {
       </section>
 
       {/* ── How to eat ── */}
-      <section className="bg-black/20 py-24">
+      <section className="bg-green-brand py-24 text-cream">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <Reveal>
             <h2 className="shout text-6xl md:text-7xl">
-              Two ways to eat it. <span style={{ color: flavour.glow }}>Both lazy.</span>
+              Two ways to eat it. <span className="text-lime-brand">Both lazy.</span>
             </h2>
           </Reveal>
           <div className="mt-12 grid gap-5 md:grid-cols-2">
             <Reveal delay={0.05}>
-              <div className="h-full rounded-3xl border border-white/15 p-8">
-                <p className="stat-num text-7xl" style={{ color: flavour.glow }}>
+              <div className="h-full rounded-3xl bg-cream p-8 text-green-deep shadow-sm">
+                <p className="stat-num text-7xl" style={{ color: flavour.primary }}>
                   ❄
                 </p>
                 <h3 className="shout-upright mt-5 text-4xl">Straight from the fridge</h3>
-                <p className="mt-3 text-cream/70">
+                <p className="mt-3 text-green-deep/70">
                   Tear the corner. Push the chicken up. Bite. It&apos;s fully cooked and engineered
                   to taste great cold — juicy, never rubbery. Zero utensils.
                 </p>
               </div>
             </Reveal>
             <Reveal delay={0.12}>
-              <div className="h-full rounded-3xl border border-white/15 p-8">
-                <p className="stat-num text-7xl" style={{ color: flavour.glow }}>
+              <div className="h-full rounded-3xl bg-cream p-8 text-green-deep shadow-sm">
+                <p className="stat-num text-7xl" style={{ color: flavour.primary }}>
                   60s
                 </p>
                 <h3 className="shout-upright mt-5 text-4xl">Or warm it up</h3>
-                <p className="mt-3 text-cream/70">
+                <p className="mt-3 text-green-deep/70">
                   Pop the pouch in the microwave for 60 seconds. Want a seared glaze? 30 seconds a
                   side on a hot pan. It&apos;s already cooked — this is just vibes.
                 </p>
@@ -282,13 +281,11 @@ export default function FlavourStory({ flavour }: { flavour: Flavour }) {
           </div>
           <Reveal delay={0.15}>
             <div className="mt-14 flex flex-col items-center gap-5 rounded-[2rem] bg-lime-brand px-8 py-14 text-center text-green-deep">
-              <h2 className="shout text-6xl md:text-7xl">Want in?</h2>
+              <h2 className="shout text-6xl md:text-7xl">Hungry?</h2>
               <p className="max-w-md font-medium text-green-deep/80">
-                Launching at BITS Pilani first. The waitlist eats before everyone else.
+                Fresh batch drops weekly. Add to cart and check out in seconds.
               </p>
-              <Link href="/#waitlist" className="btn-outline !border-green-deep text-green-deep hover:!bg-green-deep hover:!text-lime-brand">
-                Join the Waitlist
-              </Link>
+              <OrderButton className="btn-outline !border-green-deep text-green-deep hover:!bg-green-deep hover:!text-lime-brand" />
             </div>
           </Reveal>
         </div>

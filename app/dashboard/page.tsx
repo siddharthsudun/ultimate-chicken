@@ -170,7 +170,7 @@ export default function Dashboard() {
     if (lower.includes('health') || lower.includes('clean') || lower.includes('natural')) {
       return {
         subject: `Clean Eating, Finally Made Easy 🌿`,
-        html: `<h2>CLEAN EATING, FINALLY EASY</h2><p>${prompt}</p><p>Zero preservatives. Zero oil. Zero sugar. Zero additives. Just chicken, marinade, and sous vide science. This is what clean actually means.</p><p>We test every batch at Eurofins. BPA-free packaging. 8-10 microplastic particles per serving — vs 110,000+ in a plastic water bottle.</p>`,
+        html: `<h2>CLEAN EATING, FINALLY EASY</h2><p>${prompt}</p><p>Zero preservatives. Zero sugar. Zero additives. Just chicken, marinade, and sous vide science. This is what clean actually means.</p><p>We test every batch at Eurofins. BPA-free packaging. 8-10 microplastic particles per serving — vs 110,000+ in a plastic water bottle.</p>`,
       }
     }
     // Generic

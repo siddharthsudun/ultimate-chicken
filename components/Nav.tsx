@@ -3,12 +3,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import OrderButton from '@/components/OrderButton'
+import CartButton from '@/components/CartButton'
 
 const LINKS = [
   { href: '/#flavours', label: 'Flavours' },
   { href: '/why-sous-vide', label: 'Why Sous Vide' },
   { href: '/microplastics', label: 'Transparency' },
-  { href: '/#story', label: 'Our Story' },
 ]
 
 export default function Nav({ dark = false }: { dark?: boolean }) {
@@ -35,9 +36,10 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
           <Image
             src="/brand/wordmark-green.png"
             alt="Ultimate Chicken"
-            width={150}
-            height={48}
+            width={958}
+            height={232}
             priority
+            className="h-8 w-auto md:h-9"
             style={dark ? { filter: 'brightness(0) invert(1)' } : undefined}
           />
         </Link>
@@ -52,21 +54,30 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
               {l.label}
             </Link>
           ))}
-          <Link href="/#waitlist" className="btn-lime !px-6 !py-2.5 !text-base">
-            Join the Waitlist
+          <CartButton />
+          <Link href="/subscribe" className="inline-flex items-center justify-center rounded-full bg-green-deep px-6 py-2.5 font-condensed text-base font-extrabold uppercase italic tracking-wide text-lime-brand transition-transform hover:scale-[1.03]">
+            Subscribe
           </Link>
+          <OrderButton className="btn-lime !px-6 !py-2.5 !text-base" />
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className={`md:hidden ${textColor}`}
-          aria-label="Menu"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            {open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-          </svg>
-        </button>
+        {/* Mobile: persistent cart + Subscribe + Order + menu toggle */}
+        <div className={`flex items-center gap-2 md:hidden ${textColor}`}>
+          <CartButton />
+          <Link href="/subscribe" className="inline-flex items-center justify-center rounded-full bg-green-deep px-3 py-2 font-condensed text-xs font-extrabold uppercase italic tracking-wide text-lime-brand">
+            Subscribe
+          </Link>
+          <OrderButton className="btn-lime !px-3 !py-2 !text-xs">Order</OrderButton>
+          <button
+            className={textColor}
+            aria-label="Menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              {open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -81,9 +92,7 @@ export default function Nav({ dark = false }: { dark?: boolean }) {
               {l.label}
             </Link>
           ))}
-          <Link href="/#waitlist" onClick={() => setOpen(false)} className="btn-lime mt-3 w-full">
-            Join the Waitlist
-          </Link>
+          <OrderButton className="btn-lime mt-3 w-full" />
         </div>
       )}
     </nav>

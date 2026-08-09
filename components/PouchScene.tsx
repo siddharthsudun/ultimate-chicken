@@ -67,7 +67,7 @@ function buildPouchDataUrl(flavorIndex: number, width = 320, height = 480): stri
   ctx.fillStyle = 'rgba(255,255,255,0.5)'
   ctx.font = `bold ${Math.floor(width * 0.028)}px Arial`
   ctx.textAlign = 'center'
-  ctx.fillText('ZERO PRESERVATIVES · ZERO OIL', width / 2, 22)
+  ctx.fillText('ZERO PRESERVATIVES · NO ADDITIVES', width / 2, 22)
 
   // Brand name
   ctx.shadowColor = 'rgba(0,0,0,0.7)'

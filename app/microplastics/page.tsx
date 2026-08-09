@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import Reveal from '@/components/Reveal'
+import OrderButton from '@/components/OrderButton'
 
 /* Particles-per-serving comparison. Log scale — linear would make our bar invisible. */
 const SOURCES = [
@@ -90,7 +91,7 @@ export default function Microplastics() {
       </section>
 
       {/* What the pouch is */}
-      <section className="bg-green-deep py-24 text-cream md:py-32">
+      <section className="bg-green-brand py-24 text-cream md:py-32">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <Reveal>
             <p className="section-label text-lime-brand !opacity-90">The packaging, exactly</p>
@@ -117,10 +118,10 @@ export default function Microplastics() {
               ],
             ].map(([stat, title, body], i) => (
               <Reveal key={title} delay={i * 0.08}>
-                <div className="h-full rounded-3xl bg-white/5 p-8">
-                  <p className="stat-num text-6xl text-lime-brand">{stat}</p>
+                <div className="h-full rounded-3xl bg-cream p-8 text-green-deep shadow-sm">
+                  <p className="stat-num text-6xl text-green-deep">{stat}</p>
                   <h3 className="shout-upright mt-4 text-3xl">{title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-cream/65">{body}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-green-deep/65">{body}</p>
                 </div>
               </Reveal>
             ))}
@@ -141,7 +142,7 @@ export default function Microplastics() {
                 <p>
                   Sous vide only works inside a vacuum. The sealed pouch is what lets us cook at a
                   precise 63°C, lock the moisture in, and keep bacteria out — which is exactly why
-                  we don&apos;t need a single preservative, additive or drop of oil.
+                  we don&apos;t need a single preservative or additive.
                 </p>
                 <p>
                   Remove the pouch and you have to add chemistry instead. That&apos;s the actual
@@ -173,9 +174,7 @@ export default function Microplastics() {
               <Link href="/why-sous-vide" className="btn-outline !border-green-deep text-green-deep hover:!bg-green-deep hover:!text-lime-brand">
                 Why Sous Vide
               </Link>
-              <Link href="/#waitlist" className="btn-outline !border-green-deep text-green-deep hover:!bg-green-deep hover:!text-lime-brand">
-                Join the Waitlist
-              </Link>
+              <OrderButton className="btn-outline !border-green-deep text-green-deep hover:!bg-green-deep hover:!text-lime-brand" />
             </div>
           </Reveal>
         </div>

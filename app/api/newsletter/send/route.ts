@@ -86,7 +86,7 @@ const TEMPLATES: Record<string, { subject: string; html: string }> = {
       <ul>
         <li>27g protein per pack</li>
         <li>150 calories</li>
-        <li>Zero preservatives, zero oil, zero additives</li>
+        <li>Zero preservatives, zero additives</li>
         <li>Sous vide cooked — Michelin-star technique</li>
         <li>Eat straight from the wrapper</li>
       </ul>
