@@ -192,7 +192,11 @@ export async function sendEmail(
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://ultimatechicken.in'
 
 // Everyone BCC'd on every order/subscription email (kept in the loop).
-export const ORDER_NOTIFY = ['founders@ultimatechicken.in', 'redacted@example.com']
+// Set ORDER_NOTIFY_EMAILS (comma-separated) in env; keep personal addresses out of git.
+export const ORDER_NOTIFY = (process.env.ORDER_NOTIFY_EMAILS || 'founders@ultimatechicken.in')
+  .split(',')
+  .map((a) => a.trim())
+  .filter(Boolean)
 /** BCC list for an order email — everyone in ORDER_NOTIFY except the recipient. */
 export function orderBcc(to: string): string[] | undefined {
   const list = ORDER_NOTIFY.filter((a) => a !== to)
