@@ -39,3 +39,8 @@ next-env.d.ts
 # Vercel CLI env pulls
 .env.local.test
 .env*.test
+
+# real contact data — never commit
+outreach/contacts_web.json
+outreach/contacts_*.json
+!outreach/contacts_template.csv
